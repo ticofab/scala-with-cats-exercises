@@ -7,4 +7,5 @@ object Chapter2 extends App {
   println(BooleanMonoids(or).combine(false, true)) // true
   println(BooleanMonoids(xor).combine(true, true)) // false
   println(BooleanMonoids(nxor).combine(false, true)) // false
+  println(BooleanMonoids(nxor).combine(true, true)) // true
 }
