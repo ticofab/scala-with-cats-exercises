@@ -3,7 +3,7 @@ package chapter1
 import cats._
 import cats.implicits._
 
-object Main extends App {
+object Chapter1 extends App {
   println("Hello " |+| "Cats!")
   val cat = Cat("Rufus", 8, "beige")
 
