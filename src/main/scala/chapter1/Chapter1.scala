@@ -2,6 +2,7 @@ package chapter1
 
 import cats._
 import cats.implicits._
+import chapter4.IdImpl
 
 object Chapter1 extends App {
   println("Hello " |+| "Cats!")
@@ -36,4 +37,6 @@ object Chapter1 extends App {
   println(cat1 === cat2) // false
   println(optionCat1 === optionCat2) // false
   println(optionCat2 === none[Cat]) // true
+
+  val id3 = IdImpl.pure(3)
 }
