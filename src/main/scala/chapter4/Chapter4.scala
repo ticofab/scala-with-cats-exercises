@@ -1,9 +1,10 @@
 package chapter4
 
 import cats._
-import cats.data.Writer
+import cats.data.{Reader, Writer}
 import cats.instances.all._
 import cats.syntax.all._
+import chapter4.ReaderStuff.Db
 
 object Chapter4 extends App {
 
@@ -58,5 +59,33 @@ object Chapter4 extends App {
     ans
   }
 
+  val catName: Reader[Cat, String] = Reader(cat => cat.name)
+  val cat = Cat("Romeo", "spaghetti")
+  val foodKitty: Reader[Cat, String] = Reader(cat => s"have a nice bowl of ${cat.favoriteFood}")
+  println(catName.run(cat))
+  val nameAndFood: Reader[Cat, String] = for {
+    n <- catName
+    f <- foodKitty
+  } yield s"$n, $f"
+  // test my reader stuff
+  val users = Map(
+    1 -> "dade",
+    2 -> "kate",
+    3 -> "margo")
+
+  println(nameAndFood.run(cat))
+  val passwords = Map(
+    "dade" -> "zerocool",
+    "kate" -> "acidburn",
+    "margo" -> "secret")
+  val db = Db(users, passwords)
+
+  // reader monad
+  case class Cat(name: String, favoriteFood: String)
+
+  import ReaderStuff._
+
+  println(checkLogin(1, "zerocool").run(db)) // true
+  println(checkLogin(4, "davinci").run(db)) // false
 }
 
