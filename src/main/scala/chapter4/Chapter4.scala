@@ -1,7 +1,7 @@
 package chapter4
 
 import cats._
-import cats.data.{Reader, Writer}
+import cats.data.{Reader, State, Writer}
 import cats.instances.all._
 import cats.syntax.all._
 import chapter4.ReaderStuff.Db
@@ -87,5 +87,65 @@ object Chapter4 extends App {
 
   println(checkLogin(1, "zerocool").run(db)) // true
   println(checkLogin(4, "davinci").run(db)) // false
+
+  // state stuff:
+  val a = State[Int, String] { state => (state, s"The state is $state") }
+  println(a.run(10).value) // Get the state and the result:
+  println(a.runS(10).value) // Get the state, ignore the result:
+  println(a.runA(10).value) // Get the result, ignore the state:
+
+  val step1 = State[Int, String] { num =>
+    val ans = num + 1
+    (ans, s"Result of step1: $ans")
+  }
+  val step2 = State[Int, String] { num =>
+    val ans = num * 2
+    (ans, s"Result of step2: $ans")
+  }
+  val both = for {
+    a <- step1
+    b <- step2
+  } yield (a, b)
+  println(both.run(20).value)
+
+  import cats.data.State._
+
+  val program: State[Int, (Int, Int, Int)] = for {
+    a <- get[Int] // value == result
+    _ <- set[Int](a + 1) // updates the state, result is unit
+    b <- get[Int] // value == result
+    _ <- modify[Int](_ + 1) // updates the state using a function
+    c <- inspect[Int, Int](_ * 1000) // extracts state using a function
+  } yield (a, b, c)
+  println(program.run(1).value)
+  println(program.run(2).value)
+
+
+  val program2 = State.get[Int].flatMap(a =>
+    State.set[Int](a + 1).flatMap(_ =>
+      State.get[Int].flatMap(b =>
+        State.modify[Int](_ + 1).flatMap(_ =>
+          State.inspect[Int, Int](_ * 1000).map(c => (a, b, c))))))
+  println(program2.run(1).value)
+
+  import StateStuff._
+
+  val t = evalOneF("3")
+  println(t.run(Nil).value)
+  val t1 = for {
+    _ <- evalOneF("1")
+    _ <- evalOneF("6")
+    _ <- evalOneF("*")
+    _ <- evalOneF("4")
+    ans <- evalOneF("+")
+  } yield ans
+  println(t1.run(Nil).value)
+
+  val t3 = evalAll(List("1", "2", "+", "7", "*"))
+  println(t3.run(Nil).value)
+  val t4 = evalAll(List("1", "2", "+", "3", "*"))
+  println(t4.run(Nil).value)
+  println(evalInput("12+7*"))
+  println(evalInput("12+3*"))
 }
 
