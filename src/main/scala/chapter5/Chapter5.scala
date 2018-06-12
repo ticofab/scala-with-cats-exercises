@@ -10,22 +10,27 @@ object Chapter5 extends App {
   // EitherOption
   type ErrorOr[A] = Either[String, A]
   type ErrorOrOption[A] = OptionT[ErrorOr, A]
-  println(result1)
-  println(result2)
+
   // ListOption
   val result1: ListOption[Int] = OptionT(List(Option(10), None, Option(30)))
-  println(result3)
+  println(result1)
+
   val result2: ListOption[Int] = 32.pure[ListOption]
-  println(result4)
+  println(result2)
+
   val result3 = result1.flatMap { x: Int =>
     result2.map { y: Int =>
       x + y
     }
   }
+  println(result3)
+
   val result4 = for {
     a <- result1
     b <- result2
   } yield a + b
+  println(result4)
+
   val a = 10.pure[ErrorOrOption]
   val b = 32.pure[ErrorOrOption]
   val c = a.flatMap(x => b.map(y => x + y))
