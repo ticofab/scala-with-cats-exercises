@@ -59,19 +59,24 @@ case class AndE[E, A](leftOp: CheckE[E, A],
 case class PureE[E, A](func: A => Either[E, A]) extends CheckE[E, A]
 
 
-// the book's ADT implementation with Validated
+// the book's ADT implementation with Validated, changed with an implicit parameter Semigroup[A]
 sealed trait Check[E, A] {
 
   def and(that: Check[E, A]): Check[E, A] = And(this, that)
 
-  def apply(a: A)(implicit s: Semigroup[E]): Validated[E, A] = this match {
+  def or(that: Check[E, A]): Check[E, A] = Or(this, that)
+
+  def apply(a: A)(implicit s: Semigroup[E], sa: Semigroup[A]): Validated[E, A] = this match {
 
     case Pure(func) => func(a)
 
-    case And(left, right) =>
+    case And(left, right) => left(a).combine(right(a))
+
+    case Or(left, right) =>
       val v1: Validated[E, A] = left(a)
       val v2: Validated[E, A] = right(a)
-      (v1, v2).mapN((_, _) => a)
+      if (v1.isValid || v2.isValid) Validated.Valid(a)
+      else v1.combine(v2)
 
   }
 }
@@ -80,3 +85,6 @@ case class And[E, A](left: Check[E, A],
                      right: Check[E, A]) extends Check[E, A]
 
 case class Pure[E, A](func: A => Validated[E, A]) extends Check[E, A]
+
+case class Or[E, A](left: Check[E, A],
+                    right: Check[E, A]) extends Check[E, A]

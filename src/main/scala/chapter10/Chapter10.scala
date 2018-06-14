@@ -71,10 +71,16 @@ object Chapter10 extends App {
     else Validated.Invalid(List("Must be < -2"))
   }
 
-  val check: Check[List[String], Int] = And(a, b)
+  val checkAnd: Check[List[String], Int] = And(a, b)
+  val checkOr: Check[List[String], Int] = Or(a, b)
 
-  println("book'a ADT solution with Validated")
-  println(check(5))
-  println(check(-4))
-  println(check(1))
+  println("book'a ADT solution with Validated AND")
+  println(checkAnd(5))
+  println(checkAnd(-4))
+  println(checkAnd(1))
+
+  println("book'a ADT solution with Validated OR")
+  println(checkOr(5))
+  println(checkOr(-4))
+  println(checkOr(1))
 }
