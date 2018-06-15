@@ -4,7 +4,7 @@ import cats.Monoid
 import cats.instances.all._
 import cats.syntax.all._
 
-object GCounter {
+object GCounter1 {
 
   trait BoundedSemiLattice[A] extends Monoid[A] {
     def combine(a1: A, a2: A): A
